@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pomodoro Timer</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Pomodoro Timer</h1>
+            <button id="theme-toggle" class="theme-btn" aria-label="Toggle dark mode">
+                <span class="icon sun">☀️</span>
+                <span class="icon moon">🌙</span>
+            </button>
+        </header>
+
+        <main>
+            <div class="timer-modes">
+                <button class="mode-btn active" data-mode="pomodoro" data-time="25">Pomodoro</button>
+                <button class="mode-btn" data-mode="short" data-time="5">Short Break</button>
+                <button class="mode-btn" data-mode="long" data-time="15">Long Break</button>
+            </div>
+
+            <div class="timer-display">
+                <div class="timer-circle">
+                    <svg class="progress-ring" width="280" height="280">
+                        <circle class="progress-ring-bg" cx="140" cy="140" r="130" />
+                        <circle class="progress-ring-circle" cx="140" cy="140" r="130" />
+                    </svg>
+                    <div class="timer-text">
+                        <span id="minutes">25</span>:<span id="seconds">00</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timer-controls">
+                <button id="start-btn" class="control-btn primary">Start</button>
+                <button id="reset-btn" class="control-btn secondary">Reset</button>
+            </div>
+
+            <div class="session-counter">
+                <span>Sessions completed: <strong id="session-count">0</strong></span>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
