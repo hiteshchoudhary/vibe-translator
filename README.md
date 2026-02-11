@@ -23,13 +23,24 @@ Go to the [Warp Oz platform](https://www.warp.dev/oz) and create a new environme
 
 ### 2. Run it
 
+**Option A: TypeScript (recommended)** — uses the official [Oz SDK](https://github.com/warpdotdev/oz-sdk-typescript)
+
 ```bash
-# Login to Warp
+npm install
+export WARP_API_KEY="your-api-key"
+npx tsx vibe-translate.ts "Build me a pomodoro timer with dark mode"
+```
+
+**Option B: Bash** — uses the Oz CLI directly
+
+```bash
 warp login
-
-# Run the translator
 ./vibe-translate.sh "Build me a pomodoro timer with dark mode"
+```
 
+**After it finishes:**
+
+```bash
 # Monitor agents
 oz run list
 

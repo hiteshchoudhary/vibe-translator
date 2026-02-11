@@ -1,0 +1,15 @@
+{
+  "name": "vibe-translator",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "translate": "tsx vibe-translate.ts"
+  },
+  "dependencies": {
+    "oz-agent-sdk": "latest"
+  },
+  "devDependencies": {
+    "tsx": "latest",
+    "typescript": "latest"
+  }
+}
