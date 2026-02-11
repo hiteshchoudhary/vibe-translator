@@ -6,20 +6,34 @@ Describe an app in plain English. Oz spawns 5 parallel agents that each build it
 
 ## Quick Start
 
+### 1. Create the Oz Environment
+
+Go to the [Warp Oz platform](https://www.warp.dev/oz) and create a new environment with these details:
+
+| Field | Value |
+|-------|-------|
+| **Name** | `vibe-translator` |
+| **Description** | `Environment for Vibe Translator — multi-stack app generator powered by Oz` |
+| **Repositories** | `hiteshchoudhary/vibe-translator` |
+| **Docker Image** | `node:20-bookworm` |
+| **Setup commands** | `npm install -g create-vite degit serve` |
+| | `apt-get update && apt-get install -y jq curl` |
+
+> **Note:** The environment name must be exactly `vibe-translator` — the script references it by this name.
+
+### 2. Run it
+
 ```bash
-# 1. Login to Warp
+# Login to Warp
 warp login
 
-# 2. Register the environment
-oz environment create --file oz-environment.yaml
-
-# 3. Run it
+# Run the translator
 ./vibe-translate.sh "Build me a pomodoro timer with dark mode"
 
-# 4. Monitor agents
-oz task list
+# Monitor agents
+oz run list
 
-# 5. Open PRs when done
+# Open PRs when done
 ./open-prs.sh
 ```
 
@@ -59,6 +73,22 @@ After all agents finish you get:
 - **`comparison/report.md`** — detailed side-by-side analysis with scores
 - **`comparison/scores.json`** — machine-readable structured scores
 - **`comparison/index.html`** — visual comparison dashboard (open in browser)
+
+### Viewing Results
+
+```bash
+# Check agent status
+oz run list
+
+# View the comparison report
+git fetch --all
+git checkout vibe/comparison-report
+open comparison/index.html      # Visual dashboard in browser
+cat comparison/report.md         # Detailed markdown report
+cat comparison/scores.json       # Machine-readable scores
+```
+
+You can also view results directly on GitHub via the PRs created by each agent.
 
 ## Example Prompts
 

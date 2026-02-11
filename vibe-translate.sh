@@ -32,6 +32,21 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 echo ""
 
 # ─────────────────────────────────────────────
+# Resolve environment ID from name
+# ─────────────────────────────────────────────
+
+ENV_NAME="vibe-translator"
+ENV_ID=$(oz environment list --output-format json | jq -r --arg name "$ENV_NAME" '.[] | select(.name == $name) | .id')
+
+if [ -z "$ENV_ID" ]; then
+  echo "  [error] Environment '${ENV_NAME}' not found. Create it first on the Oz platform."
+  exit 1
+fi
+
+echo "[setup] Resolved environment: ${ENV_NAME} (${ENV_ID})"
+echo ""
+
+# ─────────────────────────────────────────────
 # Configuration
 # ─────────────────────────────────────────────
 
@@ -73,8 +88,8 @@ for i in "${!STACKS[@]}"; do
   DIR="${DIRS[$i]}"
   INSTRUCTION="${INSTRUCTIONS[$i]}"
 
-  TASK_ID=$(oz task create \
-    --environment vibe-translator \
+  RUN_OUTPUT=$(oz agent run-cloud \
+    --environment "$ENV_ID" \
     --prompt "You are a senior frontend developer. The user wants you to build an app based on this description: '${PROMPT}'.
 
 ${INSTRUCTION}
@@ -85,9 +100,9 @@ IMPORTANT:
 - Commit all your files with a descriptive message
 - Push the branch to origin
 - Do NOT modify files outside your assigned directory" \
-    --background \
-    --name "vibe-${STACK}" \
-    --output json | jq -r '.id')
+    --name "vibe-${STACK}" 2>&1)
+
+  TASK_ID=$(echo "$RUN_OUTPUT" | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' | head -1)
 
   TASK_IDS+=("$TASK_ID")
   echo "  [+] Agent ${STACK} launched (task: ${TASK_ID})"
@@ -104,19 +119,29 @@ echo ""
 echo "[Waiting] Monitoring builder agents..."
 echo ""
 
+wait_for_task() {
+  local task_id="$1"
+  local label="$2"
+  while true; do
+    RUN_STATUS=$(oz run get "$task_id" 2>&1 | grep -oE '\(([A-Za-z]+)\)' | head -1 | tr -d '()')
+    if [ "$RUN_STATUS" = "Succeeded" ] || [ "$RUN_STATUS" = "Failed" ] || [ "$RUN_STATUS" = "Error" ]; then
+      break
+    fi
+    sleep 10
+  done
+  if [ "$RUN_STATUS" = "Succeeded" ]; then
+    echo "  [done] ${label} completed successfully!"
+  else
+    echo "  [warn] ${label} finished with status: ${RUN_STATUS}"
+  fi
+}
+
 for i in "${!TASK_IDS[@]}"; do
   TASK_ID="${TASK_IDS[$i]}"
   STACK="${STACKS[$i]}"
 
   echo "  Waiting for ${STACK} (${TASK_ID})..."
-  oz task wait "$TASK_ID"
-
-  STATUS=$(oz task get "$TASK_ID" --output json | jq -r '.status')
-  if [ "$STATUS" = "completed" ]; then
-    echo "  [done] ${STACK} completed successfully!"
-  else
-    echo "  [warn] ${STACK} finished with status: ${STATUS}"
-  fi
+  wait_for_task "$TASK_ID" "$STACK"
 done
 
 echo ""
@@ -130,8 +155,8 @@ echo ""
 echo "[Phase 2] Launching comparison agent..."
 echo ""
 
-COMPARE_TASK_ID=$(oz task create \
-  --environment vibe-translator \
+COMPARE_OUTPUT=$(oz agent run-cloud \
+  --environment "$ENV_ID" \
   --prompt "You are a senior frontend architect and code reviewer. Your job is to compare 4 different implementations of the same app.
 
 The original app request was: '${PROMPT}'
@@ -198,23 +223,15 @@ A beautiful standalone HTML comparison dashboard that:
 - Includes a summary verdict section at the bottom
 
 5. Commit all files with a descriptive message and push the 'vibe/comparison-report' branch to origin." \
-  --background \
-  --name "vibe-comparison-judge" \
-  --output json | jq -r '.id')
+  --name "vibe-comparison-judge" 2>&1)
+
+COMPARE_TASK_ID=$(echo "$COMPARE_OUTPUT" | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' | head -1)
 
 echo "  [+] Comparison agent launched (task: ${COMPARE_TASK_ID})"
 echo ""
 echo "[Waiting] Waiting for comparison agent..."
 
-oz task wait "$COMPARE_TASK_ID"
-
-COMPARE_STATUS=$(oz task get "$COMPARE_TASK_ID" --output json | jq -r '.status')
-echo ""
-if [ "$COMPARE_STATUS" = "completed" ]; then
-  echo "  [done] Comparison agent completed successfully!"
-else
-  echo "  [warn] Comparison agent finished with status: ${COMPARE_STATUS}"
-fi
+wait_for_task "$COMPARE_TASK_ID" "comparison-judge"
 
 # ─────────────────────────────────────────────
 # Done!
