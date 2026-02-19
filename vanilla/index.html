@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban Board</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Kanban Board</h1>
+        </header>
+        
+        <div class="board">
+            <div class="column" data-status="todo">
+                <div class="column-header">
+                    <h2>To Do</h2>
+                    <span class="task-count">0</span>
+                </div>
+                <div class="tasks" data-status="todo"></div>
+                <button class="add-task-btn" data-status="todo">+ Add Task</button>
+            </div>
+            
+            <div class="column" data-status="in-progress">
+                <div class="column-header">
+                    <h2>In Progress</h2>
+                    <span class="task-count">0</span>
+                </div>
+                <div class="tasks" data-status="in-progress"></div>
+                <button class="add-task-btn" data-status="in-progress">+ Add Task</button>
+            </div>
+            
+            <div class="column" data-status="done">
+                <div class="column-header">
+                    <h2>Done</h2>
+                    <span class="task-count">0</span>
+                </div>
+                <div class="tasks" data-status="done"></div>
+                <button class="add-task-btn" data-status="done">+ Add Task</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal for adding/editing tasks -->
+    <div class="modal-overlay" id="taskModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New Task</h3>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <form id="taskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Title</label>
+                    <input type="text" id="taskTitle" required placeholder="Enter task title">
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" rows="3" placeholder="Enter task description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="taskPriority">Priority</label>
+                    <select id="taskPriority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                    </select>
+                </div>
+                <input type="hidden" id="taskId">
+                <input type="hidden" id="taskStatus">
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Task</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
